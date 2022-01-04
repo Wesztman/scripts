@@ -29,16 +29,14 @@ elseif (-not (get-item $directory).psiscontainer) {
     $directory = $null
 }
 Write-Host ""
-Write-Host "Located the following files in $directory" -ForegroundColor Green
+Write-Host "Located the following files in $directory"
 
 $files = Get-ChildItem -Path $directory -Recurse -Filter "*.*" -File | Where-Object { $_.DirectoryName -ne $directory } | sort-object -Property Name
 
 Write-Host ""
 
 $files | ForEach-Object {
-    Write-Host $_.FullName.Substring($directory.Length + 1) -ForegroundColor Green
-    # Write-Host $_.Name
-    # Write-Host $_.DirectoryName
+    Write-Host $_.FullName.Substring($directory.Length + 1) -ForegroundColor Red
 }
 
 Write-Host ""
