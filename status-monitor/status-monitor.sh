@@ -17,7 +17,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 start_time=$(date +%s%3N) # milliseconds since epoch
-trap "echo -e '\n'; tput cnorm; exit" INT  # cleanup on Ctrl+C
+trap "tput cnorm; exit" INT  # cleanup on Ctrl+C
 tput civis  # hide cursor
 
 # Parse configuration file
@@ -46,45 +46,62 @@ parse_config() {
 # Load the configuration
 parse_config "$CONFIG_FILE"
 
-while true; do
-    # Clear screen each iteration for a clean display
+# Draw the static part of the display once
+draw_static() {
     clear
-
-    # Draw simple box
     echo -e "┌──────────────────────┐"
     echo -e "│        ${YELLOW}STATUS${NC}        │"
     echo -e "└──────────────────────┘"
+    
+    # Add empty lines for status and time
+    echo
+    echo
+    echo
+    
+    # Move cursor back to where we'll update status
+    tput cup 4 0
+}
 
-    # Calculate elapsed time
-    now=$(date +%s%3N)
-    elapsed=$((now - start_time))
-    sec=$((elapsed / 1000))
-    min=$((sec / 60))
-    sec=$((sec % 60))
+# Initial screen setup
+draw_static
 
-    # Format time display
-    time_display="${YELLOW}$(printf "%02d:%02d" "$min" "$sec")${NC}"
-
-    # Status line with time at the end
+while true; do
+    # Move cursor to status line position
+    tput cup 4 0
+    
+    # Build status line
     status_line=""
-
-    # Process each check
     for i in "${!check_indices[@]}"; do
         # Execute the command in the context of the script directory
         (cd "$SCRIPT_DIR" && bash -c "${check_commands[i]}")
         result=$?
-
+        
         if [[ $result -eq 0 ]]; then
             status_line+="${GREEN}■ ${check_names[i]}${NC} "
         else
             status_line+="${RED}■ ${check_names[i]}${NC} "
         fi
     done
-
-    # Print the status line and time on separate lines for simpler formatting
-    echo -e "\n$status_line"
-    echo -e "\n${time_display}"
-
-    # Sleep briefly
-    sleep 0.1
+    
+    # Clear the status line and display new status
+    tput el
+    echo -e "$status_line"
+    
+    # Calculate elapsed time
+    now=$(date +%s%3N)
+    elapsed=$((now - start_time))
+    sec=$((elapsed / 1000))
+    min=$((sec / 60))
+    sec=$((sec % 60))
+    
+    # Move to time line and update
+    tput cup 6 0
+    tput el
+    echo -e "${YELLOW}$(printf "%02d:%02d" "$min" "$sec")${NC}"
+    
+    # Move cursor back to status line for next update
+    tput cup 4 0
+    
+    # Sleep before next update
+    sleep 0.5
 done
