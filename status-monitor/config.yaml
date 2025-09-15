@@ -1,19 +1,13 @@
 checks:
-  - index: 1
-    name: "ns1"
-    command: "cat file1.txt | grep -q true"
-  - index: 2
-    name: "ns2"
-    command: "cat file2.txt | grep -q true"
-  - index: 3
-    name: "ns3"
-    command: "cat file3.txt | grep -q true"
-  - index: 4
-    name: "ns4"
-    command: "cat file4.txt | grep -q true"
-  - index: 5
-    name: "ns5"
-    command: "cat file5.txt | grep -q true"
-  - index: 6
-    name: "ns6"
-    command: "cat file6.txt | grep -q true"
+  - name: "ns1"
+    command: "grep -q true file1.txt"
+  - name: "ns2"
+    command: "grep -q true file2.txt"
+  - name: "ns3"
+    command: "grep -q true file3.txt"
+  - name: "ns4"
+    command: "grep -q true file4.txt"
+  - name: "ns5"
+    command: "grep -q true file5.txt"
+  - name: "ns6"
+    command: "grep -q true file6.txt"
